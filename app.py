@@ -35,31 +35,25 @@ with st.sidebar:
     gemini_key = default_gemini
     eleven_key = default_eleven
     
-    # Curated voices for quick selection
-    curated_voices = ["Roger", "Harry", "Sarah"]
-    
     if eleven_key:
         try:
             elevenlabs_client = client.ElevenLabs(api_key=eleven_key)
             voices = elevenlabs_client.voices.get_all()
-            voice_map = {voice.name: voice.voice_id for voice in voices.voices}
             
-            # Filter to only curated voices
-            available_curated = {name: voice_map[name] for name in curated_voices if name in voice_map}
+            # Create voice map: name -> voice_id
+            all_voices = {voice.name: voice.voice_id for voice in voices.voices}
             
-            if available_curated:
-                voice_name = st.selectbox("Select Voice", list(available_curated.keys()))
-                voice_id = available_curated[voice_name]
+            # Limit to first 4 voices for clean UI
+            voice_map = dict(list(all_voices.items())[:4])
+            
+            if voice_map:
+                voice_name = st.selectbox("Select Voice", list(voice_map.keys()))
+                voice_id = voice_map[voice_name]
             else:
-                st.warning("⚠️ Curated voices not found. Using fallback.")
-                fallback = {v: voice_map[v] for v in voice_map.keys() if v in curated_voices}
-                if fallback:
-                    voice_name = st.selectbox("Select Voice", list(fallback.keys()))
-                    voice_id = fallback[voice_name]
-                else:
-                    voice_id = None
+                st.error("⚠️ No voices found in your ElevenLabs account")
+                voice_id = None
         except Exception as e:
-            st.warning(f"Could not fetch ElevenLabs voices: {str(e)}")
+            st.error(f"⚠️ Error fetching voices: {str(e)}")
             voice_id = None
     else:
         st.error("⚠️ ElevenLabs API key not found in .env")
