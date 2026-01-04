@@ -95,18 +95,8 @@ if st.button("🔍 EXECUTE FORENSIC AUTOPSY", use_container_width=True):
         # Configure Gemini
         genai.configure(api_key=gemini_key)
         
-        # List available models to find the right one
-        with st.spinner("🔍 Checking available Gemini models..."):
-            available_models = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
-            st.write(f"📋 Available models: {available_models}")
-        
-        # Use the first available model that supports generateContent
-        if available_models:
-            model_name = available_models[0].replace('models/', '')
-            model = genai.GenerativeModel(model_name)
-        else:
-            st.error("No suitable Gemini models available with your API key")
-            st.stop()
+        # Use stable, available Gemini model
+        model = genai.GenerativeModel('gemini-2.5-flash')
         
         with st.spinner("🔬 Analyzing the code wreckage..."):
             # Build Multimodal Prompt
