@@ -1,12 +1,20 @@
 import streamlit as st
 import google.generativeai as genai
-from elevenlabs.client import client
+from elevenlabs import generate, play, set_api_key, voices as get_voices
 import PIL.Image
 import os
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
 load_dotenv()
+
+# Initialize session state keys to prevent crashes on reload
+if 'gemini_key' not in st.session_state:
+    st.session_state['gemini_key'] = os.getenv("GEMINI_API_KEY", "")
+if 'eleven_key' not in st.session_state:
+    st.session_state['eleven_key'] = os.getenv("ELEVENLABS_API_KEY", "")
+if 'voice_id' not in st.session_state:
+    st.session_state['voice_id'] = None
 
 # --- 🕵️ DETECTIVE UI STYLING ---
 st.set_page_config(page_title="Project Ghost", page_icon="🕵️", layout="wide")
@@ -29,32 +37,30 @@ st.write("*Analyzing dead projects. Resurrection guaranteed.*")
 with st.sidebar:
     st.header("🎙️ Narrator Voice")
     
-    # Load keys from .env (no UI needed)
-    default_gemini = os.getenv("GEMINI_API_KEY", "")
-    default_eleven = os.getenv("ELEVENLABS_API_KEY", "")
-    gemini_key = default_gemini
-    eleven_key = default_eleven
+    gemini_key = st.session_state['gemini_key']
+    eleven_key = st.session_state['eleven_key']
     
     if eleven_key:
         try:
-            elevenlabs_client = client.ElevenLabs(api_key=eleven_key)
-            voices = elevenlabs_client.voices.get_all()
+            # Initialize ElevenLabs with API key
+            set_api_key(eleven_key)
+            available_voices = get_voices()
             
             # Create voice map: name -> voice_id
-            all_voices = {voice.name: voice.voice_id for voice in voices.voices}
+            voice_map = {voice.name: voice.voice_id for voice in available_voices}
             
             # Limit to first 4 voices for clean UI
-            voice_map = dict(list(all_voices.items())[:4])
+            voice_map = dict(list(voice_map.items())[:4])
             
             if voice_map:
                 voice_name = st.selectbox("Select Voice", list(voice_map.keys()))
-                voice_id = voice_map[voice_name]
+                st.session_state['voice_id'] = voice_map[voice_name]
             else:
                 st.error("⚠️ No voices found in your ElevenLabs account")
-                voice_id = None
+                st.session_state['voice_id'] = None
         except Exception as e:
             st.error(f"⚠️ Error fetching voices: {str(e)}")
-            voice_id = None
+            st.session_state['voice_id'] = None
     else:
         st.error("⚠️ ElevenLabs API key not found in .env")
 
@@ -141,23 +147,21 @@ Example tone: "The code was a mess. No tests. No docs. Dead on arrival."
             st.info(report_text)
             
             # --- 🎙️ ELEVENLABS NARRATION ---
-            if eleven_key:
+            if eleven_key and st.session_state['voice_id']:
                 try:
                     with st.spinner("🎙️ The detective narrates..."):
-                        elevenlabs_client = client.ElevenLabs(api_key=eleven_key)
-                        audio_stream = elevenlabs_client.text_to_speech.convert(
+                        # Use ElevenLabs legacy API
+                        set_api_key(eleven_key)
+                        audio = generate(
                             text=report_text,
-                            voice_id=voice_id,
-                            model_id="eleven_multilingual_v2"
+                            voice=st.session_state['voice_id']
                         )
-                        # Convert stream to bytes
-                        audio_bytes = b"".join(chunk for chunk in audio_stream if chunk)
-                        st.audio(audio_bytes, format='audio/mp3')
+                        st.audio(audio, format='audio/mp3')
                         st.success("🎬 Narration complete.")
                 except Exception as e:
                     st.error(f"🎙️ Voice engine failed: {e}")
             else:
-                st.warning("🎙️ No ElevenLabs key provided. Skipping narration.")
+                st.warning("🎙️ No ElevenLabs key or voice selected. Skipping narration.")
     
     except Exception as e:
         st.error(f"🚨 Investigation failed: {str(e)}")
