@@ -1,15 +1,10 @@
 # 🕵️ Project Ghost: Forensic AI Engine
 
-**A hackathon tool built for hackers that analyzes failed projects and suggests winning strategies.**
+**Analyzes GitHub repos and screenshots using Gemini to generate noir detective-themed project reports with AI narration.**
 
-## The Problem
+## What It Does
 
-At every hackathon, developers struggle with:
-- **Decision Paralysis**: "What tech stack should I use?"
-- **Project Validation**: "Is this actually a good idea?"
-- **Learning from Failure**: "Why do winning projects win?"
-
-Project Ghost solves this by analyzing any GitHub repository and providing AI-powered insights using a noir detective theme.
+Point it at a GitHub repo URL, optionally upload a screenshot, and it'll analyze the code using Gemini's multimodal capabilities to generate a "Coroner's Report" complete with AI narration. Built as a hackathon project to test out Gemini + ElevenLabs + Vultr together.
 
 ## The Solution
 
@@ -32,26 +27,21 @@ Project Ghost solves this by analyzing any GitHub repository and providing AI-po
 
 ### Tech Stack
 
-- **Frontend**: Streamlit (rapid development, judges love it)
-- **AI Analysis**: Google Gemini 2.5 Flash (multimodal, faster inference)
-- **Voice**: ElevenLabs v0.2.15 (natural, professional narration)
-- **Cloud**: Vultr Ubuntu 22.04 (live deployment)
+- **Frontend**: Streamlit (built a 300+ student grade calculator in it, so figured I'd use it again as it makes frontend much simpler)
+- **AI Analysis**: Google Gemini 2.5 Flash
+- **Voice**: ElevenLabs v0.2.15
+- **Cloud**: Vultr Ubuntu 22.04
 - **Environment**: Python 3.10+
 
-## Why This Wins
+## Implementation Notes
 
-### ✅ Sponsor Category Coverage
-- **Google Gemini**: Full multimodal integration (text + images) using Gemini 2.5 Flash
-- **ElevenLabs**: Text-to-speech narration with voice selection
-- **Vultr**: Live deployment on Vultr cloud at 207.246.125.6
+### What I Learned Building This
 
-### ✅ Judging Criteria
-- **Innovation**: Novel combination of Gemini + ElevenLabs + Noir theme
-- **Execution**: Clean, working code with proper error handling
-- **Polish**: Professional UI with dark mode + noir aesthetic
-- **Practicality**: Actually useful for analyzing hackathon projects
+**Dependencies Matter**: Had to pin ElevenLabs to v0.2.15 due to Pydantic v2 conflicts. Stable versions beat latest versions when under time pressure.
 
-### ✅ Security & Production Best Practices
+**Streamlit State Management**: Session state needs explicit initialization or you crash on reload. Learned this the hard way.
+
+### Security & Best Practices
 - `.env` file for API keys (never committed, gitignored)
 - `.env.example` for documentation
 - Session state initialization to prevent Streamlit crashes
@@ -96,48 +86,33 @@ Navigate to `http://localhost:8501` and start analyzing projects!
 
 ### Google Gemini
 - [Get API Key](https://ai.google.dev/tutorials/setup)
-- Free tier available with rate limits
 - Used for multimodal analysis
 
 ### ElevenLabs
 - [Get API Key](https://elevenlabs.io)
-- Free tier: 10,000 characters/month
 - Used for voice narration
 
-## Live Deployment
+## Live Demo
 
-**Project Ghost is live and running at:** http://207.246.125.6
+**Running at:** http://207.246.125.6
 
-Judges can test it directly without setting up locally. The app is fully functional with all APIs integrated and tested in production.
+Full stack deployed and working. No local setup needed if you just want to try it out.
 
-## Demo
+## How to Use It
 
-**Ideal Demo Flow for Judges:**
-
-1. Visit http://207.246.125.6 (no setup required)
-2. Paste a GitHub URL (e.g., a previous hackathon project)
-3. Optionally upload a screenshot of the UI
+1. Visit http://207.246.125.6
+2. Paste a GitHub URL
+3. Optionally upload a screenshot
 4. Click "EXECUTE FORENSIC AUTOPSY"
-5. Read the Coroner's Report and listen to narration
+5. Read the report and listen to the narration
 
-**Why this impresses judges:**
-- Live demo on production infrastructure (Vultr)
-- Real multimodal Gemini 2.5 Flash capability
-- Professional voice narration (ElevenLabs)
-- Shows end-to-end API integration
-- Memorable noir theme execution
+## Bugs Fixed
 
-## Production Issues Overcome
-
-This project demonstrates real problem-solving under pressure:
-
-- **Pydantic v2 Compatibility**: ElevenLabs SDK conflict resolved by pinning v0.2.15
-- **Session State Errors**: Streamlit crashes fixed with explicit session state initialization
-- **Model Availability**: Discovered gemini-2.5-flash through iterative testing, documented stable version
-- **Voice Output Quality**: Markdown stripping implemented for clean TTS narration
-- **Cloud Deployment**: Linux venv setup and Streamlit configuration for public access
-
-Each fix was committed strategically to show problem-solving methodology.
+- ElevenLabs v0.2.15 pinned to avoid Pydantic v2 conflicts
+- Streamlit session state initialized explicitly (prevents reload crashes)
+- Markdown stripped before voice generation (no more reading asterisks aloud)
+- Model selection locked to gemini-2.5-flash (most stable option)
+- Ubuntu venv setup required explicit python3.10-venv install
 
 ## Future Enhancements
 
