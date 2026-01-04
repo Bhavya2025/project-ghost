@@ -140,10 +140,13 @@ Example tone: "The code was a mess. No tests. No docs. Dead on arrival."
             if eleven_key and st.session_state['voice_id']:
                 try:
                     with st.spinner("🎙️ The detective narrates..."):
+                        # Remove markdown formatting for clean voice output
+                        clean_text = report_text.replace('*', '').replace('_', '').replace('**', '').replace('`', '')
+                        
                         # Use ElevenLabs legacy API
                         set_api_key(eleven_key)
                         audio = generate(
-                            text=report_text,
+                            text=clean_text,
                             voice=st.session_state['voice_id']
                         )
                         st.audio(audio, format='audio/mp3')
