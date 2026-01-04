@@ -1,6 +1,6 @@
 # 🕵️ Project Ghost: Forensic AI Engine
 
-**Analyzes GitHub repos and screenshots using Gemini to generate noir detective-themed project reports with AI narration.**
+**Analyzes GitHub repos and screenshots using Gemini to generate  noir detective-themed project reports with AI narration.**
 
 ## What It Does
 
